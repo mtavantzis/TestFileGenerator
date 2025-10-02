@@ -1,0 +1,2 @@
+curl -v --location 'https://app.mobileguard.com/api/ATTMessageService/Archive' --header 'Content-Type: text/plain' --header 'Authorization: Basic U21hcnNoLUFUVC1NRy1BUFA6NXRTOEo5SDl0WHBI' --data '@output/MG/email.000003.eml'
+curl -v --location 'https://app.mobileguard.com/api/ATTMessageService/Archive' --header 'Content-Type: text/plain' --header 'Authorization: Basic U21hcnNoLUFUVC1NRy1BUFA6NXRTOEo5SDl0WHBI' --data '@output/MG/email.000004.eml'

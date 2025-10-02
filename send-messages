@@ -1,0 +1,94 @@
+#!/usr/bin/perl
+use File::Find;
+use File::Path;
+use File::Copy;
+use Getopt::Std;
+
+
+#Debug Flag
+$debug=1;
+#Flush to stdout immediately / no buffering
+if($debug){
+    $|=1;
+}
+ 
+&usage() if !getopts('d:m:r:s:', \%Options) || (!defined($Options{'d'})) || (!defined($Options{'m'}))|| (!defined($Options{'r'}))|| (!defined($Options{'s'}));
+ 
+ 
+# Allow command line to override defaults
+my $destination = $Options{'d'} if defined($Options{'d'});
+my $mailfrom = $Options{'m'} if defined($Options{'m'});
+my $rcptto = $Options{'r'} if defined($Options{'r'});
+my $source = $Options{'s'} if defined($Options{'s'});
+ 
+($rcptLeft,$rcptRight)=split('@',$rcptto);
+($mfrmLeft,$mfrmRight)=split('@',$mailfrom);
+ 
+print "Variables:$rcptLeft,$rcptRight,$mfrmLeft,$mfrmRight";
+ 
+$filter="*.eml";
+ 
+if($debug){
+  print "\n";
+  print "Options settings:\n";
+  print "Destination: $destination\n";
+  print "Mailfrom: $mailfrom\n";
+  print "Rcptto: $rcptto\n";
+  print "Source: $source\n"; 
+}
+ 
+$filescopied=0;
+$fileserrored=0;
+print "\nCopying email files....\n";
+ 
+find(\&copy_emails, "$source");
+ 
+print "\n\nFinished copying $filescopied files\n*Note:You may have to chown -R zantaz:zantaz on the destination directory*\n";
+ 
+sub copy_emails
+{
+    $filename=$_;
+    $dir=$File::Find::dir;
+    if($filename =~ /\.eml/i){
+            ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
+            $timestamp=sprintf("%4d-%02d-%02dT%02d\:%02d\:%02dZ",$year+1900,$mon+1,$mday,$hour,$min,$sec);
+     
+            $emailfile=join("",map{ ("a".."f", 0..9)[rand 16] } 1..16);
+            $hex1=join("",map{ ("a".."f", 0..9)[rand 16] } 1..2);
+            $hex2=join("",map{ ("a".."f", 0..9)[rand 16] } 1..2);
+ 
+            $destfilepath="$destination/$rcptRight/$timestamp/$rcptLeft/$mfrmRight/$mfrmLeft";  
+  #          print "\nMaking directory $destfilepath\n";
+            mkpath($destfilepath, { verbose=> false, mode => 0744, user=>'zantaz', group=>'zantaz'});
+     
+   #         print "\nCopying $filename to $destfilepath/$emailfile.eml";
+            copy("$filename","$destfilepath/$emailfile.eml") or die "Copy failed: $!";       
+            $filescopied++;
+		if($filescopied %1000 == 1)
+		{
+			print "$filescopied\n";
+		}
+    }
+     
+}
+ 
+ 
+sub trim
+{
+        my $string = shift;
+        $string =~ s/^\s*// if(defined($string) && $string ne "");
+        $string =~ s/\s*$// if(defined($string) && $string ne "");
+        return $string;
+}
+ 
+sub usage()
+{
+  print "Usage: perl layoutonsmap.pl [-d destination] [-m mailfrom] [-r rcptto] [-s sourcefolder]\n"; 
+  print "\n";
+  print "       -d destination            - Destination folder\n";
+  print "       -m mailfrom               - MAIL FROM\n";
+  print "       -r rcpto                  - RCPT TO\n";
+  print "       -s source folder          - Source folder\n";
+  print "\n";
+  exit;
+}
