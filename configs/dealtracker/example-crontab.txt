@@ -1,0 +1,8 @@
+#in crontab
+0 * * * * /opt/test-data/cron/dealtracker.sh
+
+#in file dealtracker.sh
+cd /opt/test-data/
+end_date_range=$(date +"%F %T")
+start_date_range=$(date -d '1 hour ago' +"%F %T")
+./datagen.sh -c dealtracker/dealtracker -params "date_start=$start_date_range; date_end=$end_date_range;" -output '/var/spool/smap/download/dealtracker@localhost'

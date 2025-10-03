@@ -1,0 +1,5 @@
+- Both bloomberg-ib.config and bloomberg-msg.config generate their own set of attachments. These two configs cannot be run in parallel.
+
+Example command:
+datagen -c bloomberg/bloomberg-msg;bloomberg/bloomberg-ldif -params "date_start=2018-09-01; date_end=2018-09-02; feed_id=f1000"
+
