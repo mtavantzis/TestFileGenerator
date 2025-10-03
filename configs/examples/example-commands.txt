@@ -1,0 +1,1 @@
+datagen -c examples/non-smtp-logs -params "log_date_start=2019-08-01 00:00:00; log_date_end=2019-08-02 00:00:00;"
